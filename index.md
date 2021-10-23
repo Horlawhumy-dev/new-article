@@ -1,6 +1,6 @@
-In this tutorial, we are building a fully-functional chat application by implementing the chat server using Django Channel. Channel is built on the async-server that Django uses to implement application servers which is ASGI.
+This tutorial will build a fully functional chat application by implementing the chat server using Django Channel. Channel is created on the async-server that Django uses to implement application servers which is ASGI.
 
-ASGI is the server specification that Channel was built upon. Like the Web Server Gateway Interface WSGI, this gives the opportunity of choosing servers and/or a framework of choice rather than just accepting the Channel server called Daphne.
+ASGI is the server specification that the Channel was built upon. Like the Web Server Gateway Interface WSGI, this gives the opportunity of choosing servers and a framework of choice rather than just accepting the Channel server called Daphne.
 
 Channel allows not only the HyperText Transfer Protocol but other protocols that have long connections time too. It can also be integrated with WebSockets, chatbots, and more.
 
@@ -28,9 +28,9 @@ Let install the channels dependency and make the requirements file.
 
 $ python -m pip install -U channels
 $ pip freeze > requirements.txt
-Make sure that the channel is added to the INSTALLED_APP in the settings.py file of your project folder.
+Make sure that the Channel is added to the INSTALLED_APP in the settings.py file of your project folder.
 
-However, it was said earlier that Channels was built on top of ASGI and for that reason, the asgi.py file in the mychatapp has to be adjusted with the codes below.
+However, it was said earlier that Channels was built on top of ASGI, and for that reason, the `asgi.py` file in the `mychatapp` has to be adjusted with the codes below.
 
 import os
 from channels.routing import ProtocolTypeRouter
@@ -41,25 +41,26 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mychatapp.settings')
 application = ProtocolTypeRouter({
     "http": get_asgi_application()
 })
-Finally, the ASGI has to be pointing to your asgi.py file and that is done in the settings.py;
+Finally, the ASGI has to be pointing to your asgi.py file, and that is done in the settings.py;
 
 Note that this will replace the WSGIserver that came default with the Django project.
 
 ASGI_APPLICATION = "myproject.asgi.application"
-With this code, the Channel server will take over the default Django's WSGI server and allow only the HTTP protocol for now.
+The Channel server will take over the default Django's WSGI server and allow only the HTTP protocol with this code.
 
-Run the server with the command below and then open up the browser with the localhost, you should see the message of 500 internal server error.
-
-$ python manage.py runserver
+Run the server with the command below and then open up the browser with the localhost; you should see the message of 500 internal server error.
+```bash
+$ python manage.py run server
 500 Internal Server Error
+````
 
-Creating the chat app
+### Creating the chat app
 It is a good practice to separate the codes for the chats in its stand-alone application. Following the Django way of creating an app;
 
 $ python manage.py startapp chatapp
 Add the new app to the installed apps section inside the settings.py file.
 
-The next thing is to create a template folder inside the chat app folder. Then make chat app folder and inside that make index.html file.
+The next thing is to create a template folder inside the chat app folder. Then make a chat app folder, and inside that, make an `index.html` file.
 
 Navigate to the index.html and paste the boiler codes below;
 
@@ -87,11 +88,12 @@ Navigate to the index.html and paste the boiler codes below;
     </script>
 </body>
 </html>
-The Html template code is allowing clients to enter the name of the chat room they are navigating. Then the JavaScript does the trick by grabbing the submitted room name.
 
-Having submitted, it will be attached to the windows path and sent to the server. The server will receive the request and match it to the URLs if found.
+The HTML template code allows clients to enter the name of the chat room they are navigating. Then the JavaScript does the trick by grabbing the submitted room name.
 
-At this point, we have to make both the URLs and views` for the incoming HTTP requests from clients.
+Having submitted the room name, it will be attached to the windows path and sent to the server. The server will receive the request and match it to the URLs if found.
+
+We have to make both the URLs and views` for the incoming HTTP requests from clients.
 
 In the views.py file inside the chat app, we can define the index method as;
 
@@ -109,22 +111,25 @@ app_name = 'chatapp'
 urlpatterns = [
     path('', index, name="index")
 ]
-The next step is to register the app URLConf file with the project. Navigate to the urls.py of the mychat app folder and do the mapping like below;
+The next step is to register the app URLConf file with the project. Navigate to the `urls.py` of the `mychat` app folder and do the mapping like below;
 
-# mychatapp/urls.py
-from django.contrib import admin
-from django.urls import path, include
+```py
+from Django.contrib import admin
+from Django.URLs import path, include
 
 urlpatterns = [
     path('chats/', include('chatapp.urls')),
     path('admin/', admin.site.urls),
 ]
+```
+```bash
 $ python manage.py runserver
-Running the server and navigating to the http://localhost:8080/chats/ will open the chat page having both the inputs and submit button.
+```
+Running the server and navigating to the http://localhost:8080/chats/ will open the chat page with both the inputs and submit buttons.
 
 But if you type in any room name, you should receive a page not found message because we have not implemented any other chat room for communication.
 
-Setting up chat server
+### Setting up a chat server
 First of all, we need to add another room chat template. Inside the chat app templates, make chatroom.html and paste the following codes;
 
 <!-- chatapp/templates/chatapp/chatroom.html -->
@@ -179,7 +184,7 @@ First of all, we need to add another room chat template. Inside the chat app tem
 </html>
 Note that the common convention to distinguish the HTTP connection from WebSockets is to use the ws` protocol.
 
-In the views.py file, we have to make a function that will match the client request through the URLs.
+In the `views.py` file, we have to make a function that will match the client request through the URLs.
 
 def roomName(request, room_name):
         return render(request, 'chatapp/chatroom.html', {'room_name': room_name})
@@ -259,7 +264,7 @@ class Consumer(WebsocketConsumer):
         }))
 Now create the routing.py file in the chat app folder. This will map the incoming WebSocket connection to the appropriate consumer function.
 
-from django.urls import re_path
+from Django.URLs import re_path
 
 from .consumers import Consumer
 
@@ -272,7 +277,7 @@ Also, the as_asgi() method called on the Consumer class does the same task with 
 
 Now we have to make the root routing connection with the server. This is to allow the connection between the multiple requests or clients chatting at the same time.
 
-Navigate to the asgi.py in the mychat app folder and replace the codes with the following;
+Navigate to the asgi.py in the chat app folder and replace the codes with the following;
 
 # mychatapp/asgi.py
 import os
